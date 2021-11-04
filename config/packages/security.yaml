@@ -1,4 +1,10 @@
 security:
+
+    encoders:
+        FOS\UserBundle\Model\UserInterface: sha512
+        App\Entity\User:
+            algorithm: bcrypt
+
     enable_authenticator_manager: true
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
@@ -25,3 +31,4 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+

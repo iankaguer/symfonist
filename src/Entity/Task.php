@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=TaskRepository::class)
- *
+ ** @ORM\Table(name="task")
  *
  */
 #[ApiResource]
@@ -27,21 +27,21 @@ class Task
      * )
      */
 	#[Groups(["task:list", "task:item"])]
-                                  private ?string $title;
+    private ?string $title;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
 	#[Groups(["task:list", "task:item"])]
-                                  private ?DateTimeInterface $tdate;
+                                           private ?DateTimeInterface $tdate;
 
     /**
      * @ORM\Column(type="boolean")
      * @Assert\Type("boolean")
      */
 	#[Groups(["task:list", "task:item"])]
-                              	
-                                  private ?bool $status;
+                                       	
+                                           private ?bool $status;
 	
 	/**
 	 * @ORM\Id
@@ -49,15 +49,16 @@ class Task
 	 * @ORM\Column(type="integer")
 	 */
 	#[Groups(["task:list", "task:item"])]
-                                  private ?int $id;
+                                           private ?int $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(name="user_id",nullable=false)
      */
-    private $user;
+	#[Groups(['task:list', 'task:item'])]
+    private $userId;
 
-   
+
 
    
 
@@ -113,15 +114,17 @@ class Task
 
     public function getUserId(): ?user
     {
-        return $this->user;
+        return $this->userId;
     }
 
-    public function setUserId(?user $user): self
+    public function setUserId(?user $userId): self
     {
-        $this->user = $user;
+        $this->userId = $userId;
 
         return $this;
     }
+
+    
 
 
  

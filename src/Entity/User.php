@@ -14,7 +14,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="user")
+ * @ORM\Table(name="`user`")
+ *
  * @method string getUserIdentifier()
  */
 #[ApiResource]
@@ -31,7 +32,17 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=50)
      */
     private string $mail;
-
+	
+	/**
+	 * @ORM\Column(type="string", length=50)
+	 */
+	private $username;
+	
+	/**
+	 * @ORM\Column(type="string")
+	 */
+	private $password;
+	
     /**
      * @ORM\Column(type="boolean")
      */
@@ -48,18 +59,18 @@ class User implements UserInterface
     private DateTimeInterface $lastConnexion;
 
     /**
-     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="user_id", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="userId", orphanRemoval=true)
      */
-    private ArrayCollection $tasks;
+    private $tasks;
 
-   
-  
-
-    #[Pure]
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
     }
+
+    
+	
+	
 
     public function getId(): ?int
     {
@@ -114,9 +125,50 @@ class User implements UserInterface
         return $this;
     }
 	
-	/**
-	 * @return Collection
-	 */
+	
+	public function getUsername()
+                  	{
+                  		return $this->username;
+                  	}
+	public function setUsername($username)
+                  	{
+                  		$this->username = $username;
+                  		return $this;
+                  	}
+	
+	public function getPassword()
+                  	{
+                  		return $this->password;
+                  	}
+	public function setPassword($password)
+                  	{
+                  		$this->password = $password;
+                  		return $this;
+                  	}
+	
+	public function getRoles()
+                  	{
+                  		// TODO: Implement getRoles() method.
+                  	}
+	
+	public function getSalt()
+                  	{
+                  		// TODO: Implement getSalt() method.
+                  	}
+	
+	public function eraseCredentials()
+                  	{
+                  		// TODO: Implement eraseCredentials() method.
+                  	}
+	
+	public function __call(string $name, array $arguments)
+                  	{
+                  		// TODO: Implement @method string getUserIdentifier()
+                  	}
+
+    /**
+     * @return Collection|Task[]
+     */
     public function getTasks(): Collection
     {
         return $this->tasks;
@@ -143,34 +195,4 @@ class User implements UserInterface
 
         return $this;
     }
-	
-	public function getRoles()
-	{
-		// TODO: Implement getRoles() method.
-	}
-	
-	public function getPassword()
-	{
-		// TODO: Implement getPassword() method.
-	}
-	
-	public function getSalt()
-	{
-		// TODO: Implement getSalt() method.
-	}
-	
-	public function eraseCredentials()
-	{
-		// TODO: Implement eraseCredentials() method.
-	}
-	
-	public function getUsername()
-	{
-		// TODO: Implement getUsername() method.
-	}
-	
-	public function __call(string $name, array $arguments)
-	{
-		// TODO: Implement @method string getUserIdentifier()
-	}
 }
