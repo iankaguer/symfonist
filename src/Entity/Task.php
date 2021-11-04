@@ -7,46 +7,59 @@ use App\Repository\TaskRepository;
 use DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=TaskRepository::class)
  *
  *
- *  @ApiResource(
- *      collectionOperations={"get"={"normalization_context"={"groups"="task:list"}}},
- *      itemOperations={"get"={"normalization_context"={"groups"="task:item"}}},
- *    paginationEnabled=false
- *  )
  */
+#[ApiResource]
 class Task
 {
 	
 
     /**
      * @ORM\Column(type="string", length=255)
+     * * @Assert\Type(
+     *     type="string",
+     *     message="The value {{ value }} is not a valid {{ type }}."
+     * )
      */
-	#[Groups(["conference:list", "conference:item"])]
-    private ?string $title;
+	#[Groups(["task:list", "task:item"])]
+                                  private ?string $title;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-	#[Groups(["conference:list", "conference:item"])]
-    private ?DateTimeInterface $tdate;
+	#[Groups(["task:list", "task:item"])]
+                                  private ?DateTimeInterface $tdate;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Assert\Type("boolean")
      */
-	#[Groups(["conference:list", "conference:item"])]
-    private ?bool $status;
+	#[Groups(["task:list", "task:item"])]
+                              	
+                                  private ?bool $status;
 	
 	/**
 	 * @ORM\Id
 	 * @ORM\GeneratedValue
 	 * @ORM\Column(type="integer")
 	 */
-	#[Groups(["conference:list", "conference:item"])]
-    private ?int $id;
+	#[Groups(["task:list", "task:item"])]
+                                  private ?int $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
+
+   
+
+   
 
     
 
@@ -97,4 +110,19 @@ class Task
 
         return $this;
     }
+
+    public function getUserId(): ?user
+    {
+        return $this->user;
+    }
+
+    public function setUserId(?user $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+
+ 
 }
