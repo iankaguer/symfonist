@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 
 class UserCrudController extends AbstractCrudController
@@ -23,6 +24,12 @@ class UserCrudController extends AbstractCrudController
         ];
     }
     */
+	
+	public function configureFilters(Filters $filters): Filters
+	{
+		return $filters
+			->add('username')->add('mail');
+	}
 	
 	public function configureCrud(Crud $crud): Crud
 	{

@@ -2,23 +2,31 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\TaskRepository;
 use DateTimeInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-
 /**
  * @ORM\Entity(repositoryClass=TaskRepository::class)
- ** @ORM\Table(name="task")
+ * @ORM\Table(name="task")
  *
  */
-#[ApiResource]
+
+#[ApiResource(
+	collectionOperations: ["get", "post"],
+	itemOperations: ["GET", "PUT", "PATCH","DELETE"],
+	denormalizationContext: ["groups" => ["write"]],
+	formats: [ "jsonld", "csv" => ["text/csv"]],
+	normalizationContext: ["groups" => ["read"]]
+)]
+
 class Task
 {
 	
-
     /**
      * @ORM\Column(type="string", length=255)
      * * @Assert\Type(
@@ -26,37 +34,36 @@ class Task
      *     message="The value {{ value }} is not a valid {{ type }}."
      * )
      */
-	#[Groups(["task:list", "task:item"])]
+	#[Groups(["read", "write"])]
     private ?string $title;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-	#[Groups(["task:list", "task:item"])]
-                                           private ?DateTimeInterface $tdate;
+	#[Groups(["read", "write"])]
+      private ?DateTimeInterface $tdate;
 
     /**
      * @ORM\Column(type="boolean")
      * @Assert\Type("boolean")
      */
-	#[Groups(["task:list", "task:item"])]
-                                       	
-                                           private ?bool $status;
+	#[Groups(["read", "write"])]
+    private ?bool $status;
 	
 	/**
 	 * @ORM\Id
 	 * @ORM\GeneratedValue
 	 * @ORM\Column(type="integer")
 	 */
-	#[Groups(["task:list", "task:item"])]
-                                           private ?int $id;
+	#[Groups(["read", "write"])]
+    private ?int $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tasks")
      * @ORM\JoinColumn(name="user_id",nullable=false)
      */
-	#[Groups(['task:list', 'task:item'])]
-    private $userId;
+	#[Groups(["read"])]
+    private ?user $userId;
 
 
 
@@ -66,6 +73,7 @@ class Task
 
     public function getId(): ?int
     {
+	    
         return $this->id;
     }
 

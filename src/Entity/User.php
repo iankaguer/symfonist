@@ -3,14 +3,17 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -18,7 +21,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * @method string getUserIdentifier()
  */
-#[ApiResource]
+#[ApiResource(
+	collectionOperations: ['get', 'post'],
+	itemOperations: ['GET', 'PUT', 'PATCH', 'DELETE'],
+	denormalizationContext: ['groups' => ['write']],
+	formats: ['jsonld', 'csv' => ['text/csv']],
+	normalizationContext: ['groups' => ['read']]
+)]
 class User implements UserInterface
 {
     /**
@@ -26,47 +35,55 @@ class User implements UserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
+	#[Groups(['read', 'write'])]
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=50)
      */
+	#[Groups(['read', 'write'])]
     private string $mail;
 	
 	/**
 	 * @ORM\Column(type="string", length=50)
 	 */
-	private $username;
+	#[Groups(['read', 'write'])]
+	private string $username;
 	
 	/**
 	 * @ORM\Column(type="string")
 	 */
-	private $password;
+	#[Groups([ 'write'])]
+	private ?string $password;
 	
     /**
      * @ORM\Column(type="boolean")
      */
+	#[Groups(['read', 'write'])]
     private bool $validated;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
+	#[Groups(['read', 'write'])]
     private DateTimeImmutable $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
      */
+	#[Groups(['read', 'write'])]
     private DateTimeInterface $lastConnexion;
 
     /**
      * @ORM\OneToMany(targetEntity=Task::class, mappedBy="userId", orphanRemoval=true)
      */
-    private $tasks;
+	#[ApiSubresource]
+	private PersistentCollection $tasks;
 
-    public function __construct()
+   /* #[Pure] public function __construct()
     {
-        $this->tasks = new ArrayCollection();
-    }
+       // $this->tasks = new PersistentCollection();
+    }*/
 
     
 	
@@ -127,48 +144,48 @@ class User implements UserInterface
 	
 	
 	public function getUsername()
-                  	{
-                  		return $this->username;
-                  	}
+    {
+        return $this->username;
+    }
 	public function setUsername($username)
-                  	{
-                  		$this->username = $username;
-                  		return $this;
-                  	}
+    {
+        $this->username = $username;
+        return $this;
+    }
 	
 	public function getPassword()
-                  	{
-                  		return $this->password;
-                  	}
+    {
+        return $this->password;
+    }
 	public function setPassword($password)
-                  	{
-                  		$this->password = $password;
-                  		return $this;
-                  	}
+    {
+        $this->password = $password;
+        return $this;
+    }
 	
 	public function getRoles()
-                  	{
-                  		// TODO: Implement getRoles() method.
-                  	}
+    {
+        // TODO: Implement getRoles() method.
+    }
 	
 	public function getSalt()
-                  	{
-                  		// TODO: Implement getSalt() method.
-                  	}
-	
+    {
+        // TODO: Implement getSalt() method.
+    }
+
 	public function eraseCredentials()
-                  	{
-                  		// TODO: Implement eraseCredentials() method.
-                  	}
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
 	
 	public function __call(string $name, array $arguments)
-                  	{
-                  		// TODO: Implement @method string getUserIdentifier()
-                  	}
+    {
+        // TODO: Implement @method string getUserIdentifier()
+    }
 
-    /**
-     * @return Collection|Task[]
-     */
+	/**
+	 * @return Collection
+	 */
     public function getTasks(): Collection
     {
         return $this->tasks;
@@ -186,13 +203,10 @@ class User implements UserInterface
 
     public function removeTask(Task $task): self
     {
-        if ($this->tasks->removeElement($task)) {
-            // set the owning side to null (unless already changed)
-            if ($task->getUserId() === $this) {
-                $task->setUserId(null);
-            }
-        }
-
+	    // set the owning side to null (unless already changed)
+	    if ($this->tasks->removeElement($task) && $task->getUserId() === $this) {
+	        $task->setUserId(null);
+	    }
         return $this;
     }
 }
